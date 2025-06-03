@@ -12,18 +12,17 @@ end lfsr;
 
 architecture Behavioral of lfsr is
     signal lfsr_reg : STD_LOGIC_VECTOR(7 downto 0) := "10101010"; -- Non-zero initial state
-    signal feedback : STD_LOGIC;
 begin
-    -- 8-bit Maximal LFSR with taps at bits 7, 5, 4, and 3
-    feedback <= lfsr_reg(7) xor lfsr_reg(5) xor lfsr_reg(4) xor lfsr_reg(3);
     
     process(clk, reset)
+        variable feedback : std_logic;
     begin
         if reset = '1' then
             lfsr_reg <= "10101010"; -- Reset to initial non-zero state
         elsif rising_edge(clk) then
             if enable = '1' then
-                -- Shift right and insert feedback bit at MSB
+                -- Compute feedback from taps 7,5,4,3 and shift
+                feedback := lfsr_reg(7) xor lfsr_reg(5) xor lfsr_reg(4) xor lfsr_reg(3);
                 lfsr_reg <= feedback & lfsr_reg(7 downto 1);
             end if;
         end if;
@@ -31,4 +30,4 @@ begin
     
     random_num <= lfsr_reg;
     
-end Behavioral; 
+end Behavioral;

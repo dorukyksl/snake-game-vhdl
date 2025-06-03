@@ -20,8 +20,6 @@ architecture Behavioral of segment_display is
     -- BCD digits
     signal hundreds, tens, ones : INTEGER range 0 to 9 := 0;
     
-    -- Current digit to display
-    signal digit_value : INTEGER range 0 to 9 := 0;
     
     -- 7-segment encoding for 0-9 (active low)
     type segment_array is array(0 to 9) of std_logic_vector(6 downto 0);
@@ -62,30 +60,23 @@ begin
         ones <= temp mod 10;
     end process;
     
-    -- Select which digit to display
+    -- Select which digit to display and drive the segments
     process(active_digit, hundreds, tens, ones)
     begin
         case active_digit is
-            when "00" => 
-                -- Rightmost digit (ones)
-                digit_value <= ones;
-                an <= "1110";
-            when "01" => 
-                -- Second digit from right (tens)
-                digit_value <= tens;
-                an <= "1101";
-            when "10" => 
-                -- Third digit from right (hundreds)
-                digit_value <= hundreds;
-                an <= "1011";
-            when others => 
-                -- Leftmost digit (not used)
-                digit_value <= 0;
-                an <= "0111";
+            when "00" =>                    -- Rightmost digit (ones)
+                seg <= segments(ones);
+                an  <= "1110";
+            when "01" =>                    -- Second digit (tens)
+                seg <= segments(tens);
+                an  <= "1101";
+            when "10" =>                    -- Third digit (hundreds)
+                seg <= segments(hundreds);
+                an  <= "1011";
+            when others =>                  -- Leftmost digit unused
+                seg <= segments(0);
+                an  <= "0111";
         end case;
     end process;
     
-    -- Set the segment signals based on digit value
-    seg <= segments(digit_value);
-    
-end Behavioral; 
+end Behavioral;
